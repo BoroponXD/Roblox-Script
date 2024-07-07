@@ -1,0 +1,9 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/CloneRef.lua", true))()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/Bypasses.lua", true))()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/BoroponXD/Roblox-Script/main/Roblox-Dev-V3", true))()
+
+loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+
+loadstring(game:HttpGet('https://raw.githubusercontent.com/BoroponXD/Roblox-Script/main/OPFinality-Script'))()
