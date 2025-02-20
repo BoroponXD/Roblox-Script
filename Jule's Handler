@@ -239,7 +239,7 @@ SettingsButton.BorderSizePixel = 2
 
 local SettingsFrame = Instance.new("Frame", ScreenGui)
 SettingsFrame.Size = UDim2.new(0, 125, 0, 125)
-SettingsFrame.Position = UDim2.new(0.7024, Frame.Position.X.Offset + Frame.Size.X.Offset + 0.9988, 0.6, Frame.Position.Y.Offset)
+SettingsFrame.Position = UDim2.new(0.801, Frame.Position.X.Offset + Frame.Size.X.Offset + 1, 0.6, Frame.Position.Y.Offset)
 SettingsFrame.BackgroundColor3 = Color3.new(0, 0, 0)
 SettingsFrame.BackgroundTransparency = 0.2
 SettingsFrame.BorderSizePixel = 2
@@ -284,7 +284,7 @@ SettingsButton.MouseButton1Click:Connect(function()
 end)
 
 Frame:GetPropertyChangedSignal("Position"):Connect(function()
-    SettingsFrame.Position = UDim2.new(0.7024, Frame.Position.X.Offset + Frame.Size.X.Offset + 0.9988, 0.6, Frame.Position.Y.Offset)
+    SettingsFrame.Position = UDim2.new(0.801, Frame.Position.X.Offset + Frame.Size.X.Offset + 1, 0.6, Frame.Position.Y.Offset)
 end)
 
 Frame:GetPropertyChangedSignal("Size"):Connect(function()
