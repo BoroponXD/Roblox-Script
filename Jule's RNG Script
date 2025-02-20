@@ -17,7 +17,7 @@ local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
 local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0, 250, 0, 240)
+Frame.Size = UDim2.new(0, 250, 0, 320)
 Frame.Position = UDim2.new(1, -270, 0.5, -120)
 Frame.BackgroundColor3 = Color3.new(0, 0, 0)
 Frame.BackgroundTransparency = 0.4
@@ -25,10 +25,28 @@ Frame.BorderSizePixel = 2
 Frame.Active = true
 Frame.Draggable = true
 
+local Title = Instance.new("TextLabel", Frame)
+Title.Size = UDim2.new(1, 0, 0.12, 0)
+Title.Position = UDim2.new(0, 0, 0, 0)
+Title.Text = "Jule's AutoCollect"
+Title.TextScaled = true
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.SourceSansBold
+
+local Credits = Instance.new("TextLabel", Frame)
+Credits.Size = UDim2.new(1, 0, 0.1, 0)
+Credits.Position = UDim2.new(0, 0, 0.12, 0)
+Credits.Text = "Credits: Boro\nFollow me on Roblox: BoroponXD"
+Credits.TextScaled = true
+Credits.TextColor3 = Color3.fromRGB(200, 200, 200)
+Credits.BackgroundTransparency = 1
+Credits.Font = Enum.Font.SourceSans
+
 -- Функция для создания кнопки
 local function createButton(parent, text, posY, toggleVar)
     local button = Instance.new("TextButton", parent)
-    button.Size = UDim2.new(0.8, 0, 0.15, 0)
+    button.Size = UDim2.new(0.8, 0, 0.1, 0)
     button.Position = UDim2.new(0.1, 0, posY, 0)
     button.Text = text .. ": OFF"
     button.TextColor3 = Color3.new(1, 1, 1)
@@ -49,12 +67,12 @@ local function createButton(parent, text, posY, toggleVar)
 end
 
 -- Создание кнопок
-local AutoCollectButton = createButton(Frame, "AutoCollect", 0.05, "AutoCollect_Enabled")
-local AutoFlyButton = createButton(Frame, "AutoFly", 0.25, "AutoFly_Enabled")
-local NoclipButton = createButton(Frame, "Noclip", 0.45, "Noclip_Enabled")
+local AutoCollectButton = createButton(Frame, "AutoCollect", 0.45, "AutoCollect_Enabled")
+local AutoFlyButton = createButton(Frame, "AutoFly", 0.60, "AutoFly_Enabled")
+local NoclipButton = createButton(Frame, "Noclip", 0.75, "Noclip_Enabled")
 
 -- Кнопка для включения/выключения всех функций
-local AllFunctionsButton = createButton(Frame, "Toggle All", 0.75, "")
+local AllFunctionsButton = createButton(Frame, "Toggle All", 0.25, "")
 
 AllFunctionsButton.MouseButton1Click:Connect(function()
     local newState = not (_G.ESP_Enabled or _G.AutoCollect_Enabled or _G.AutoFly_Enabled or _G.Noclip_Enabled)
