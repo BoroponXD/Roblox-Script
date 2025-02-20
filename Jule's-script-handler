@@ -8,8 +8,14 @@ local TeleportService = game:GetService("TeleportService")
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local VirtualInputManager = game:GetService("VirtualInputManager")
-local player = Players.LocalPlayer
-local playerGui = player:FindFirstChild("PlayerGui")
+local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
+
+_G.Settings = {
+    Gem = true,
+    lucky_potion = true,
+    speed_potion = true,
+    ultimate_potion = true
+}
 
 if playerGui then
     local interface = playerGui:FindFirstChild("Interface")
@@ -36,7 +42,8 @@ local function saveSettings()
             AutoCollect_Enabled = _G.AutoCollect_Enabled,
             AutoFly_Enabled = _G.AutoFly_Enabled,
             Noclip_Enabled = _G.Noclip_Enabled,
-            AutoRejoin_Enabled = _G.AutoRejoin_Enabled
+            AutoRejoin_Enabled = _G.AutoRejoin_Enabled,
+            Settings = _G.Settings
         }
         local encodedSettings = game:GetService("HttpService"):JSONEncode(settings)
         writefile("autocollect_settings.json", encodedSettings)
@@ -50,7 +57,7 @@ local Frame = Instance.new("Frame", ScreenGui)
 Frame.Size = UDim2.new(0, 250, 0, 360)
 Frame.Position = UDim2.new(1, -270, 0.5, -160)
 Frame.BackgroundColor3 = Color3.new(0, 0, 0)
-Frame.BackgroundTransparency = 0.4
+Frame.BackgroundTransparency = 0
 Frame.BorderSizePixel = 2
 Frame.Active = true
 Frame.Draggable = true
@@ -86,20 +93,36 @@ local function createButton(parent, text, posY, toggleVar)
     local button = Instance.new("TextButton", parent)
     button.Size = UDim2.new(0.8, 0, 0.1, 0)
     button.Position = UDim2.new(0.1, 0, posY, 0)
-    button.Text = text .. ": OFF"
-    button.TextColor3 = Color3.new(1, 1, 1)
-    button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    button.TextColor3 = Color3.new(50, 50, 50)
+	button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     button.BackgroundTransparency = 0.2
     button.BorderSizePixel = 2
 
+    -- Функция обновления состояния кнопки
+    local function updateButtonState()
+        local state = _G[toggleVar] or false  -- Если переменная не существует, по умолчанию OFF
+        button.Text = text .. ": " .. (state and "ON" or "OFF")
+    end
+
+    -- Обработчик нажатия
     button.MouseButton1Click:Connect(function()
-        _G[toggleVar] = not _G[toggleVar]
-        button.Text = text .. ": " .. (_G[toggleVar] and "ON" or "OFF")
-        
-        saveSettings()
+        _G[toggleVar] = not _G[toggleVar]  -- Переключаем состояние
+        updateButtonState()  -- Обновляем состояние кнопки
+        saveSettings()  -- Сохраняем настройки
     end)
 
+    -- Инициализируем кнопки сразу
+    updateButtonState()
+
     return button
+end
+
+local function toggleAllButtons(buttons, state)
+    for _, buttonData in pairs(buttons) do
+        _G[buttonData.toggleVar] = state
+        buttonData.button.Text = buttonData.text .. ": " .. (state and "ON" or "OFF")
+    end
+    saveSettings()  -- Сохраняем настройки после изменения всех кнопок
 end
 
 local AutoCollectButton = createButton(Frame, "AutoCollect", 0.35, "AutoCollect_Enabled")
@@ -134,26 +157,109 @@ AllFunctionsButton.MouseButton1Click:Connect(function()
 end)
 
 local function loadSettings()
-    if readfile then
-        local filePath = "autocollect_settings.json"
-        if isfile(filePath) then
-            local settingsData = readfile(filePath)
-            local settings = game:GetService("HttpService"):JSONDecode(settingsData)
-            
-            _G.AutoCollect_Enabled = settings.AutoCollect_Enabled or false
-            _G.AutoFly_Enabled = settings.AutoFly_Enabled or false
-            _G.Noclip_Enabled = settings.Noclip_Enabled or false
-            _G.AutoRejoin_Enabled = settings.AutoRejoin_Enabled or false
-
-            AutoCollectButton.Text = "AutoCollect: " .. (_G.AutoCollect_Enabled and "ON" or "OFF")
-            AutoFlyButton.Text = "AutoFly: " .. (_G.AutoFly_Enabled and "ON" or "OFF")
-            NoclipButton.Text = "Noclip: " .. (_G.Noclip_Enabled and "ON" or "OFF")
-            AutoRejoinButton.Text = "AutoRejoin: " .. (_G.AutoRejoin_Enabled and "ON" or "OFF")
-        end
+    if readfile and isfile("autocollect_settings.json") then
+        local settingsData = readfile("autocollect_settings.json")
+        local settings = game:GetService("HttpService"):JSONDecode(settingsData)
+        
+        _G.AutoCollect_Enabled = settings.AutoCollect_Enabled or false
+        _G.AutoFly_Enabled = settings.AutoFly_Enabled or false
+        _G.Noclip_Enabled = settings.Noclip_Enabled or false
+        _G.AutoRejoin_Enabled = settings.AutoRejoin_Enabled or false
+        _G.Settings = settings.Settings or _G.Settings
     end
 end
 
 loadSettings()
+
+-- Добавление кнопки настроек и окна с настройками
+local settings = {
+    Gem = true,
+    lucky_potion = true,
+    speed_potion = true,
+    ultimate_potion = true
+}
+
+local function saveSettings()
+    if writefile then
+        local encodedSettings = game:GetService("HttpService"):JSONEncode(settings)
+        writefile("autocollect_items_settings.json", encodedSettings)
+    end
+end
+
+local function loadSettings()
+    if readfile and isfile("autocollect_items_settings.json") then
+        local data = readfile("autocollect_items_settings.json")
+        local decoded = game:GetService("HttpService"):JSONDecode(data)
+        for k, v in pairs(decoded) do
+            settings[k] = v
+        end
+    end
+end
+loadSettings()
+
+-- Кнопка настроек
+local SettingsButton = Instance.new("TextButton", Frame)
+SettingsButton.Size = UDim2.new(0.067, 0, 0.045, 0)
+SettingsButton.Position = UDim2.new(0.92, 0, 0.4, 0)
+SettingsButton.Text = "⚙"
+SettingsButton.TextScaled = true
+SettingsButton.TextColor3 = Color3.new(1, 1, 1)
+SettingsButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+SettingsButton.BackgroundTransparency = 0.2
+SettingsButton.BorderSizePixel = 2
+
+-- Окно настроек
+local SettingsFrame = Instance.new("Frame", ScreenGui)
+SettingsFrame.Size = UDim2.new(0, 125, 0, 125) -- Делаем окно настроек той же высоты, что и основное
+SettingsFrame.Position = UDim2.new(0.9988, Frame.Position.X.Offset + Frame.Size.X.Offset + 5, 0.6, Frame.Position.Y.Offset)
+SettingsFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+SettingsFrame.BackgroundTransparency = 0
+SettingsFrame.BorderSizePixel = 2
+SettingsFrame.Visible = false
+
+local Ye = Instance.new("TextLabel", SettingsFrame)
+Ye.Size = UDim2.new(1, 0, 0.1, 0)
+Ye.Position = UDim2.new(0, 0, 0, 0)
+Ye.Text = "AutoCollect Settings"
+Ye.TextScaled = true
+Ye.TextColor3 = Color3.new(1, 1, 1)
+Ye.BackgroundTransparency = 1
+Ye.Font = Enum.Font.SourceSansBold
+
+local function createToggleButton(parent, text, settingKey, posY)
+    local button = Instance.new("TextButton", parent)
+    button.Size = UDim2.new(0.8, 0, 0.2, 0)
+    button.Position = UDim2.new(0.1, 0, posY, 0)
+    button.Text = text .. ": " .. (settings[settingKey] and "Yes" or "No")
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    button.BackgroundTransparency = 0.2
+    button.BorderSizePixel = 2
+    
+    button.MouseButton1Click:Connect(function()
+        settings[settingKey] = not settings[settingKey]
+        button.Text = text .. ": " .. (settings[settingKey] and "Yes" or "No")
+        saveSettings()
+    end)
+end
+
+createToggleButton(SettingsFrame, "Gem", "Gem", 0.15)
+createToggleButton(SettingsFrame, "Lucky Potion", "lucky_potion", 0.35)
+createToggleButton(SettingsFrame, "Speed Potion", "speed_potion", 0.55)
+createToggleButton(SettingsFrame, "Ultimate Potion", "ultimate_potion", 0.75)
+
+SettingsButton.MouseButton1Click:Connect(function()
+    SettingsFrame.Visible = not SettingsFrame.Visible
+end)
+
+-- Обновление позиции окна настроек при перемещении основного окна
+Frame:GetPropertyChangedSignal("Position"):Connect(function()
+    SettingsFrame.Position = UDim2.new(0.9988, Frame.Position.X.Offset + Frame.Size.X.Offset + 5, 0.6, Frame.Position.Y.Offset)
+end)
+
+Frame:GetPropertyChangedSignal("Size"):Connect(function()
+    SettingsFrame.Size = UDim2.new(0, 200, 0, Frame.Size.Y.Offset) -- Меняем размер окна настроек под основное
+end)
 
 local lastRejoinAttempt = 0
 
@@ -161,29 +267,21 @@ local function checkPotionsAndRejoin()
     while true do
         task.wait(5)
         if _G.AutoRejoin_Enabled then
-            local currentTime = tick()
             local potionsFolder = workspace:FindFirstChild("Game") and workspace.Game:FindFirstChild("Potions")
             if potionsFolder then
-                local neededPotions = {"Gem", "lucky_potion", "speed_potion", "ultimate_potion"}
                 local missing = true
-                for _, potion in ipairs(neededPotions) do
-                    if potionsFolder:FindFirstChild(potion) then
+                for potion, enabled in pairs(settings) do
+                    if enabled and potionsFolder:FindFirstChild(potion) then
                         missing = false
                         break
                     end
                 end
-                if missing and (currentTime - lastRejoinAttempt >= 5) then
-                    if #Players:GetPlayers() <= 1 then
-                    Players.LocalPlayer:Kick("\nRejoining...")
-                    wait(0.1)
+                if missing then
                     TeleportService:Teleport(PlaceId, Players.LocalPlayer)
-                else
-                    TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)  -- если больше 1 игрока, то перезагружаем в ту же инстанцию
                 end
-				end
-			end
-		end
-	end
+            end
+        end
+    end
 end
 
 spawn(checkPotionsAndRejoin)
@@ -213,14 +311,42 @@ local function autoActivatePrompt()
     end
 end
 
-local function autoFlyToObject()
+-- Обновление функций AutoFly и AutoRejoin
+local function autoFlyToObject() 
+    local lastDirection = nil
+    local lastTime = tick() -- время последнего изменения направления
+    
     while true do
         task.wait(0.1)
         if _G.AutoFly_Enabled then
-            local trackedNames = {"Gem", "luck_potion", "speed_potion", "ultimate_potion"}
+            -- Проверяем, изменилось ли направление
+            local char = LocalPlayer.Character
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                local hrp = char.HumanoidRootPart
+                local currentDirection = hrp.Velocity.unit -- текущий вектор направления
+
+                if lastDirection and (currentDirection - lastDirection).Magnitude > 0.1 then
+                    lastTime = tick() -- если направление изменилось, сбрасываем таймер
+                end
+                
+                lastDirection = currentDirection
+            end
+
+            -- Проверяем, прошло ли 10 секунд с последнего изменения направления
+            if tick() - lastTime >= 10 then
+                -- Если прошло 10 секунд, перезапускаем скрипт
+                lastTime = tick() -- сбрасываем таймер
+            end
+
+            local trackedNames = {}
+            for name, enabled in pairs(settings) do
+                if enabled then
+                    table.insert(trackedNames, name)
+                end
+            end
+            
             local nearestObj = nil
             local nearestDist = math.huge
-
             for _, obj in ipairs(workspace:GetDescendants()) do
                 if obj:IsA("Model") and table.find(trackedNames, obj.Name) then
                     local part = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
@@ -233,24 +359,23 @@ local function autoFlyToObject()
                     end
                 end
             end
-
+            
             if nearestObj then
-                local char = LocalPlayer.Character
                 if char and char:FindFirstChild("HumanoidRootPart") then
                     local hrp = char.HumanoidRootPart
                     local targetPos = nearestObj.Position + Vector3.new(0, 2, 0)
                     local direction = (targetPos - hrp.Position).unit
                     local speed = 140
-
+                    
                     local bodyVelocity = Instance.new("BodyVelocity")
                     bodyVelocity.Velocity = direction * speed
                     bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
                     bodyVelocity.Parent = hrp
-
+                    
                     while (hrp.Position - targetPos).Magnitude > 3 and _G.AutoFly_Enabled do
                         task.wait()
                     end
-
+                    
                     bodyVelocity:Destroy()
                 end
             end
