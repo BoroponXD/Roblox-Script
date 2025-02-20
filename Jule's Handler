@@ -452,7 +452,7 @@ local function autoFlyToObject()
                     local hrp = char.HumanoidRootPart
                     local targetPos = nearestObj.Position + Vector3.new(0, 2, 0)
                     local direction = (targetPos - hrp.Position).unit
-                    local speed = 140
+                    local speed = 130
                     
                     local bodyVelocity = Instance.new("BodyVelocity")
                     bodyVelocity.Velocity = direction * speed
