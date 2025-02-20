@@ -222,7 +222,7 @@ SettingsButton.Position = UDim2.new(0.92, 0, 0.4, 0)
 SettingsButton.Text = "⚙"
 SettingsButton.TextScaled = true
 SettingsButton.TextColor3 = Color3.new(1, 1, 1)
-SettingsButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+SettingsButton.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
 SettingsButton.BackgroundTransparency = 0.2
 SettingsButton.BorderSizePixel = 2
 
