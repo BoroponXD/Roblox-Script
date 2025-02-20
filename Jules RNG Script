@@ -7,21 +7,20 @@ pcall(function() getgenv().AUTO_COLLECT_LOADED = true end)
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
+local TelepotService = game:GetService("TeleportService")
 
--- Ожидание загрузки игры и игрока
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
 repeat task.wait() until LocalPlayer and LocalPlayer.Character and Camera
 
--- Поддержка телепорта (перезапуск скрипта после TeleportService:Teleport)
 local SCRIPT_URL = "https://raw.githubusercontent.com/BoroponXD/Roblox-Script/refs/heads/main/Jules%20RNG%20Script"
 if syn and syn.queue_on_teleport then
     syn.queue_on_teleport(('loadstring(game:HttpGet("%s"))()'):format(SCRIPT_URL))
 elseif queue_on_teleport then
     queue_on_teleport(('loadstring(game:HttpGet("%s"))()'):format(SCRIPT_URL))
 end
+
 PlaceId, JobId = game.PlaceId, game.JobId
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
@@ -64,7 +63,7 @@ Title.Font = Enum.Font.SourceSansBold
 local Credits = Instance.new("TextLabel", Frame)
 Credits.Size = UDim2.new(1, 0, 0.1, 0)
 Credits.Position = UDim2.new(0, 0, 0.09, 0)
-Credits.Text = "Add Script to AutoExec!\nCredits: Boro\nFollow me on Roblox: BoroponXD"
+Credits.Text = "Credits: Boro\nFollow me on Roblox: BoroponXD"
 Credits.TextScaled = true
 Credits.TextColor3 = Color3.fromRGB(200, 200, 200)
 Credits.BackgroundTransparency = 1
