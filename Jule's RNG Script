@@ -1,22 +1,13 @@
 --AutoCollect Items Script (First Release)
 --Here's 3 Function only
-local Players = game:GetService("Players")
+local cloneref = cloneref or function(o) return o end
+COREGUI = cloneref(game:GetService("CoreGui"))
+Players = cloneref(game:GetService("Players"))
+PlaceId, JobId = game.PlaceId, game.JobId
 local TeleportService = game:GetService("TeleportService")
-local PlaceId = game.PlaceId  -- ID текущего места
-local JobId = game.JobId      -- ID текущего игрового сервера
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local VirtualInputManager = game:GetService("VirtualInputManager")
-local queueteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
-local TeleportCheck = false
-local KeepScriptOnRejoin = true  -- Убедись, что эта переменная установлена в true, если ты хочешь запускать скрипт.
-
-Players.LocalPlayer.OnTeleport:Connect(function(State)
-    if KeepScriptOnRejoin and not TeleportCheck and queueteleport then
-        TeleportCheck = true
-        queueteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/BoroponXD/Roblox-Script/refs/heads/main/Jule's%20RNG%20Script'))()")
-    end
-end)
 
 -- Создание экранного меню
 local ScreenGui = Instance.new("ScreenGui")
