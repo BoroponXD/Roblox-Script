@@ -1,0 +1,148 @@
+--AutoCollect Items Script (First Release)
+--Here's 3 Function only
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+
+local ESP_Objects = {}
+
+-- Глобальные переменные для функций
+_G.ESP_Enabled = false
+_G.AutoCollect_Enabled = false
+_G.AutoFly_Enabled = false
+_G.Noclip_Enabled = false
+
+-- Создание экранного меню
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Size = UDim2.new(0, 250, 0, 240)
+Frame.Position = UDim2.new(1, -270, 0.5, -120)
+Frame.BackgroundColor3 = Color3.new(0, 0, 0)
+Frame.BackgroundTransparency = 0.4
+Frame.BorderSizePixel = 2
+Frame.Active = true
+Frame.Draggable = true
+
+-- Функция для создания кнопки
+local function createButton(parent, text, posY, toggleVar)
+    local button = Instance.new("TextButton", parent)
+    button.Size = UDim2.new(0.8, 0, 0.15, 0)
+    button.Position = UDim2.new(0.1, 0, posY, 0)
+    button.Text = text .. ": OFF"
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    button.BackgroundTransparency = 0.2
+    button.BorderSizePixel = 2
+
+    button.MouseButton1Click:Connect(function()
+        _G[toggleVar] = not _G[toggleVar]
+        button.Text = text .. ": " .. (_G[toggleVar] and "ON" or "OFF")
+
+        if text == "ESP" then
+            if _G[toggleVar] then enableESP() else disableESP() end
+        end
+    end)
+
+    return button
+end
+
+-- Создание кнопок
+local AutoCollectButton = createButton(Frame, "AutoCollect", 0.05, "AutoCollect_Enabled")
+local AutoFlyButton = createButton(Frame, "AutoFly", 0.25, "AutoFly_Enabled")
+local NoclipButton = createButton(Frame, "Noclip", 0.45, "Noclip_Enabled")
+
+-- Кнопка для включения/выключения всех функций
+local AllFunctionsButton = createButton(Frame, "Toggle All", 0.75, "")
+
+AllFunctionsButton.MouseButton1Click:Connect(function()
+    local newState = not (_G.ESP_Enabled or _G.AutoCollect_Enabled or _G.AutoFly_Enabled or _G.Noclip_Enabled)
+
+    _G.ESP_Enabled = newState
+    _G.AutoCollect_Enabled = newState
+    _G.AutoFly_Enabled = newState
+    _G.Noclip_Enabled = newState
+
+    AutoCollectButton.Text = "AutoCollect: " .. (newState and "ON" or "OFF")
+    AutoFlyButton.Text = "AutoFly: " .. (newState and "ON" or "OFF")
+    NoclipButton.Text = "Noclip: " .. (newState and "ON" or "OFF")
+    AllFunctionsButton.Text = "Toggle All: " .. (newState and "ON" or "OFF")
+
+    end)
+
+-- Функция для Noclip
+game:GetService("RunService").Stepped:Connect(function()
+    if _G.Noclip_Enabled then
+        for _, part in pairs(Character:GetChildren()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+end)
+
+-- Функция для автонажатия ProximityPrompt
+local function autoActivatePrompt()
+    while true do
+        task.wait(0.000001)
+        if _G.AutoCollect_Enabled then
+            for _, prompt in ipairs(workspace:GetDescendants()) do
+                if prompt:IsA("ProximityPrompt") and prompt.Enabled then
+                    prompt:InputHoldBegin()
+                    task.wait(0.000001)
+                    prompt:InputHoldEnd()
+                end
+            end
+        end
+    end
+end
+
+-- Функция для AutoFly
+local function autoFlyToObject()
+    while true do
+        task.wait(0.1)
+        if _G.AutoFly_Enabled then
+            local trackedNames = {"Gem", "luck_potion", "speed_potion", "ultimate_potion"}
+            local nearestObj = nil
+            local nearestDist = math.huge
+
+            for _, obj in ipairs(workspace:GetDescendants()) do
+                if obj:IsA("Model") and table.find(trackedNames, obj.Name) then
+                    local part = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+                    if part then
+                        local dist = (LocalPlayer.Character.HumanoidRootPart.Position - part.Position).Magnitude
+                        if dist < nearestDist then
+                            nearestDist = dist
+                            nearestObj = part
+                        end
+                    end
+                end
+            end
+
+            if nearestObj then
+                local char = LocalPlayer.Character
+                if char and char:FindFirstChild("HumanoidRootPart") then
+                    local hrp = char.HumanoidRootPart
+                    local targetPos = nearestObj.Position + Vector3.new(0, 2, 0)
+                    local direction = (targetPos - hrp.Position).unit
+                    local speed = 140
+
+                    local bodyVelocity = Instance.new("BodyVelocity")
+                    bodyVelocity.Velocity = direction * speed
+                    bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                    bodyVelocity.Parent = hrp
+
+                    while (hrp.Position - targetPos).Magnitude > 3 and _G.AutoFly_Enabled do
+                        task.wait()
+                    end
+
+                    bodyVelocity:Destroy()
+                end
+            end
+        end
+    end
+end
+
+task.spawn(autoActivatePrompt)
+task.spawn(autoFlyToObject)
