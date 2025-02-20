@@ -15,19 +15,6 @@ if not game:IsLoaded() then
 end
 repeat task.wait() until LocalPlayer and LocalPlayer.Character and Camera
 
--- Функция Noclip для камеры
-local function enableCameraNoclip()
-    while true do
-        task.wait()
-        if Camera then
-            Camera.CameraType = Enum.CameraType.Scriptable -- Делаем камеру свободной
-        end
-    end
-end
-
--- Запуск Noclip
-task.spawn(enableCameraNoclip)
-
 -- Поддержка телепорта (перезапуск скрипта после TeleportService:Teleport)
 local SCRIPT_URL = "https://raw.githubusercontent.com/BoroponXD/Roblox-Script/refs/heads/main/Jules%20RNG%20Script"
 if syn and syn.queue_on_teleport then
