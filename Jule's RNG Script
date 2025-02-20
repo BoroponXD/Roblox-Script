@@ -9,6 +9,19 @@ local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local VirtualInputManager = game:GetService("VirtualInputManager")
 
+local function saveSettings()
+    if writefile then
+        local settings = {
+            AutoCollect_Enabled = _G.AutoCollect_Enabled,
+            AutoFly_Enabled = _G.AutoFly_Enabled,
+            Noclip_Enabled = _G.Noclip_Enabled,
+            AutoRejoin_Enabled = _G.AutoRejoin_Enabled
+        }
+        local encodedSettings = game:GetService("HttpService"):JSONEncode(settings)
+        writefile("autocollect_settings.json", encodedSettings)
+    end
+end
+
 -- Создание экранного меню
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
@@ -72,6 +85,9 @@ local function createButton(parent, text, posY, toggleVar)
     button.MouseButton1Click:Connect(function()
         _G[toggleVar] = not _G[toggleVar]
         button.Text = text .. ": " .. (_G[toggleVar] and "ON" or "OFF")
+        
+        -- Сохраняем настройки сразу после изменения
+        saveSettings()
     end)
 
     return button
@@ -82,8 +98,48 @@ local AutoCollectButton = createButton(Frame, "AutoCollect", 0.35, "AutoCollect_
 local AutoFlyButton = createButton(Frame, "AutoFly", 0.48, "AutoFly_Enabled")
 local NoclipButton = createButton(Frame, "Noclip", 0.61, "Noclip_Enabled")
 local AutoRejoinButton = createButton(Frame, "AutoRejoin", 0.8, "AutoRejoin_Enabled")
+local AllFunctionsButton = createButton(Frame, "Toggle All", 0.2, "")
 
--- Функция для проверки наличия зелий и автоматического нажатия "U"
+AllFunctionsButton.MouseButton1Click:Connect(function()
+    local newState = not (_G.AutoCollect_Enabled or _G.AutoFly_Enabled or _G.Noclip_Enabled)
+
+    _G.AutoCollect_Enabled = newState
+    _G.AutoFly_Enabled = newState
+    _G.Noclip_Enabled = newState
+	_G.AutoRejoin_Enabled = newState
+
+    AutoCollectButton.Text = "AutoCollect: " .. (newState and "ON" or "OFF")
+    AutoFlyButton.Text = "AutoFly: " .. (newState and "ON" or "OFF")
+    NoclipButton.Text = "Noclip: " .. (newState and "ON" or "OFF")
+	AutoRejoinButton.Text = "AutoRejoin: " .. (newState and "ON" or "OFF")
+    AllFunctionsButton.Text = "Toggle All"
+
+    end)
+
+-- Функция для загрузки настроек
+local function loadSettings()
+    if readfile then
+        local filePath = "autocollect_settings.json"
+        if isfile(filePath) then
+            local settingsData = readfile(filePath)
+            local settings = game:GetService("HttpService"):JSONDecode(settingsData)
+            
+            _G.AutoCollect_Enabled = settings.AutoCollect_Enabled or false
+            _G.AutoFly_Enabled = settings.AutoFly_Enabled or false
+            _G.Noclip_Enabled = settings.Noclip_Enabled or false
+            _G.AutoRejoin_Enabled = settings.AutoRejoin_Enabled or false
+
+            -- Обновляем текст кнопок с учетом загруженных настроек
+            AutoCollectButton.Text = "AutoCollect: " .. (_G.AutoCollect_Enabled and "ON" or "OFF")
+            AutoFlyButton.Text = "AutoFly: " .. (_G.AutoFly_Enabled and "ON" or "OFF")
+            NoclipButton.Text = "Noclip: " .. (_G.Noclip_Enabled and "ON" or "OFF")
+            AutoRejoinButton.Text = "AutoRejoin: " .. (_G.AutoRejoin_Enabled and "ON" or "OFF")
+        end
+    end
+end
+
+loadSettings()
+
 local lastRejoinAttempt = 0
 
 local function checkPotionsAndRejoin()
@@ -117,25 +173,6 @@ end
 
 -- Запуск проверки в отдельном потоке
 spawn(checkPotionsAndRejoin)
-
-
--- Кнопка для включения/выключения всех функций
-local AllFunctionsButton = createButton(Frame, "Toggle All", 0.2, "")
-
-AllFunctionsButton.MouseButton1Click:Connect(function()
-    local newState = not (_G.ESP_Enabled or _G.AutoCollect_Enabled or _G.AutoFly_Enabled or _G.Noclip_Enabled)
-
-    _G.ESP_Enabled = newState
-    _G.AutoCollect_Enabled = newState
-    _G.AutoFly_Enabled = newState
-    _G.Noclip_Enabled = newState
-
-    AutoCollectButton.Text = "AutoCollect: " .. (newState and "ON" or "OFF")
-    AutoFlyButton.Text = "AutoFly: " .. (newState and "ON" or "OFF")
-    NoclipButton.Text = "Noclip: " .. (newState and "ON" or "OFF")
-    AllFunctionsButton.Text = "Toggle All: " .. (newState and "ON" or "OFF")
-
-    end)
 
 -- Функция для Noclip
 game:GetService("RunService").Stepped:Connect(function()
