@@ -5,19 +5,30 @@ end
 pcall(function() getgenv().AUTO_COLLECT_LOADED = true end)
 
 local cloneref = cloneref or function(o) return o end
-COREGUI = cloneref(game:GetService("CoreGui"))
-Players = cloneref(game:GetService("Players"))
-local LocalPlayer = Players.LocalPlayer
-local TelepotService = game:GetService("TeleportService")
-local RunService = game:GetService("RunService")
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local COREGUI = cloneref(game:GetService("CoreGui"))
+local Players = cloneref(game:GetService("Players"))
+local TeleportService = cloneref(game:GetService("TeleportService"))
 
 if not game:IsLoaded() then
+    local msg = Instance.new("Message")
+    msg.Parent = COREGUI
+    msg.Text = "AutoCollect Script is waiting for the game to load..."
     game.Loaded:Wait()
+    msg:Destroy()
 end
-repeat task.wait() until LocalPlayer and LocalPlayer.Character
 
 local SCRIPT_URL = "https://raw.githubusercontent.com/BoroponXD/Roblox-Script/refs/heads/main/Jules%20RNG%20Script"
+
+-- Загружаем основной скрипт
+local success, err = pcall(function()
+    loadstring(game:HttpGet(SCRIPT_URL))()
+end)
+
+if not success then
+    warn("Ошибка при загрузке AutoCollect:", err)
+end
+
+-- Поддержка сохранения скрипта при телепорте
 if syn and syn.queue_on_teleport then
     syn.queue_on_teleport(('loadstring(game:HttpGet("%s"))()'):format(SCRIPT_URL))
 elseif queue_on_teleport then
@@ -25,6 +36,9 @@ elseif queue_on_teleport then
 end
 
 PlaceId, JobId = game.PlaceId, game.JobId
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local function saveSettings()
     if writefile then
