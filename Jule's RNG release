@@ -4,6 +4,11 @@ end
 
 pcall(function() getgenv().AUTO_COLLECT_LOADED = true end)
 
+if _G.AUTO_COLLECT_EXECUTED then
+    return
+end
+_G.AUTO_COLLECT_EXECUTED = true
+
 local cloneref = cloneref or function(o) return o end
 local COREGUI = cloneref(game:GetService("CoreGui"))
 local Players = cloneref(game:GetService("Players"))
