@@ -320,6 +320,22 @@ local function displayNotification(message)
     end)
 end
 
+local function autoRejoinAfterDelay()
+    wait(30)
+    
+    if _G.AutoRejoin_Enabled then
+        displayNotification("Rejoining after 30 seconds...")
+
+        if #Players:GetPlayers() <= 1 then
+            Players.LocalPlayer:Kick("\nRejoining...")
+            wait(0.1)
+            TeleportService:Teleport(PlaceId, Players.LocalPlayer)
+        else
+            TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)
+        end
+    end
+end
+
 local function checkPotionsAndRejoin()
     while true do
         task.wait(1)
@@ -366,6 +382,7 @@ local function checkPotionsAndRejoin()
     end
 end
 
+spawn(autoRejoinAfterDelay)
 spawn(checkPotionsAndRejoin)
 
 game:GetService("RunService").Stepped:Connect(function()
@@ -440,6 +457,7 @@ local function autoFlyToObject()
                     if part then
                         local dist = (LocalPlayer.Character.HumanoidRootPart.Position - part.Position).Magnitude
                         if dist < nearestDist then
+						    wait(0.1)
                             nearestDist = dist
                             nearestObj = part
                         end
@@ -453,23 +471,14 @@ local function autoFlyToObject()
                     local targetPos = nearestObj.Position + Vector3.new(0, 2, 0)
                     local direction = (targetPos - hrp.Position).unit
                     local speed = 130
-
-                    -- Ограничиваем скорость
-                    local velocity = direction * speed
-                    if velocity.Magnitude > speed then
-                        velocity = velocity.Unit * speed
-                    end
                     
-                    -- Создаем BodyVelocity и обновляем его каждый кадр
                     local bodyVelocity = Instance.new("BodyVelocity")
-                    bodyVelocity.Velocity = velocity
+                    bodyVelocity.Velocity = direction * speed
                     bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
                     bodyVelocity.Parent = hrp
                     
-                    -- Обновляем BodyVelocity до достижения цели
                     while (hrp.Position - targetPos).Magnitude > 3 and _G.AutoFly_Enabled do
-                        bodyVelocity.Velocity = direction * speed
-                        task.wait(0.1)
+                        task.wait()
                     end
                     
                     bodyVelocity:Destroy()
