@@ -8,16 +8,6 @@ local TeleportService = game:GetService("TeleportService")
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local VirtualInputManager = game:GetService("VirtualInputManager")
--- Дополнительные переменные для перезагрузки скрипта
-local TeleportCheck = false
-local KeepScript = true  -- Флаг для контролирования автоматической перезагрузки скрипта
-
-Players.LocalPlayer.OnTeleport:Connect(function(State)
-    if KeepScript and (not TeleportCheck) and State == Enum.TeleportState.InProgress then
-        TeleportCheck = true
-        loadstring(game:HttpGet('https://raw.githubusercontent.com/BoroponXD/Roblox-Script/refs/heads/main/Jule\'s%20AutoCollect%20Script'))()
-    end
-end)
 
 local function saveSettings()
     if writefile then
@@ -32,7 +22,6 @@ local function saveSettings()
     end
 end
 
--- Создание экранного меню
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
@@ -72,7 +61,6 @@ Necessary.TextColor3 = Color3.fromRGB(200, 200, 200)
 Necessary.BackgroundTransparency = 1
 Necessary.Font = Enum.Font.SourceSansBold
 
--- Функция для создания кнопки
 local function createButton(parent, text, posY, toggleVar)
     local button = Instance.new("TextButton", parent)
     button.Size = UDim2.new(0.8, 0, 0.1, 0)
@@ -87,19 +75,17 @@ local function createButton(parent, text, posY, toggleVar)
         _G[toggleVar] = not _G[toggleVar]
         button.Text = text .. ": " .. (_G[toggleVar] and "ON" or "OFF")
         
-        -- Сохраняем настройки сразу после изменения
         saveSettings()
     end)
 
     return button
 end
 
--- Создание кнопок
 local AutoCollectButton = createButton(Frame, "AutoCollect", 0.35, "AutoCollect_Enabled")
 local AutoFlyButton = createButton(Frame, "AutoFly", 0.48, "AutoFly_Enabled")
 local NoclipButton = createButton(Frame, "Noclip", 0.61, "Noclip_Enabled")
 local AutoRejoinButton = createButton(Frame, "AutoRejoin", 0.8, "AutoRejoin_Enabled")
--- Создание кнопки "Toggle All" отдельно
+
 local AllFunctionsButton = Instance.new("TextButton", Frame)
 AllFunctionsButton.Size = UDim2.new(0.8, 0, 0.1, 0)
 AllFunctionsButton.Position = UDim2.new(0.1, 0, 0.2, 0)
@@ -109,7 +95,6 @@ AllFunctionsButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 AllFunctionsButton.BackgroundTransparency = 0.2
 AllFunctionsButton.BorderSizePixel = 2
 
--- Обработчик клика на кнопку "Toggle All"
 AllFunctionsButton.MouseButton1Click:Connect(function()
     local newState = not (_G.AutoCollect_Enabled or _G.AutoFly_Enabled or _G.Noclip_Enabled)
 
@@ -127,7 +112,6 @@ AllFunctionsButton.MouseButton1Click:Connect(function()
 	saveSettings()
 end)
 
--- Функция для загрузки настроек
 local function loadSettings()
     if readfile then
         local filePath = "autocollect_settings.json"
@@ -140,7 +124,6 @@ local function loadSettings()
             _G.Noclip_Enabled = settings.Noclip_Enabled or false
             _G.AutoRejoin_Enabled = settings.AutoRejoin_Enabled or false
 
-            -- Обновляем текст кнопок с учетом загруженных настроек
             AutoCollectButton.Text = "AutoCollect: " .. (_G.AutoCollect_Enabled and "ON" or "OFF")
             AutoFlyButton.Text = "AutoFly: " .. (_G.AutoFly_Enabled and "ON" or "OFF")
             NoclipButton.Text = "Noclip: " .. (_G.Noclip_Enabled and "ON" or "OFF")
@@ -155,7 +138,7 @@ local lastRejoinAttempt = 0
 
 local function checkPotionsAndRejoin()
     while true do
-        task.wait(5) -- Проверять каждые 5 секунд
+        task.wait(5)
         if _G.AutoRejoin_Enabled then
             local currentTime = tick()
             local potionsFolder = workspace:FindFirstChild("Game") and workspace.Game:FindFirstChild("Potions")
@@ -171,8 +154,8 @@ local function checkPotionsAndRejoin()
                 if missing and (currentTime - lastRejoinAttempt >= 5) then
                     if #Players:GetPlayers() <= 1 then
                     Players.LocalPlayer:Kick("\nRejoining...")
-                    wait(0.1)  -- даем время на завершение кика
-                    TeleportService:Teleport(PlaceId, Players.LocalPlayer)  -- переподключаем
+                    wait(0.1)
+                    TeleportService:Teleport(PlaceId, Players.LocalPlayer)
                 else
                     TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)  -- если больше 1 игрока, то перезагружаем в ту же инстанцию
                 end
@@ -182,10 +165,8 @@ local function checkPotionsAndRejoin()
 	end
 end
 
--- Запуск проверки в отдельном потоке
 spawn(checkPotionsAndRejoin)
 
--- Функция для Noclip
 game:GetService("RunService").Stepped:Connect(function()
     if _G.Noclip_Enabled then
         for _, part in pairs(Character:GetChildren()) do
@@ -196,7 +177,6 @@ game:GetService("RunService").Stepped:Connect(function()
     end
 end)
 
--- Функция для автонажатия ProximityPrompt
 local function autoActivatePrompt()
     while true do
         task.wait(0.000001)
@@ -212,7 +192,6 @@ local function autoActivatePrompt()
     end
 end
 
--- Функция для AutoFly
 local function autoFlyToObject()
     while true do
         task.wait(0.1)
