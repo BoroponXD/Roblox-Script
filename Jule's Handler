@@ -453,14 +453,23 @@ local function autoFlyToObject()
                     local targetPos = nearestObj.Position + Vector3.new(0, 2, 0)
                     local direction = (targetPos - hrp.Position).unit
                     local speed = 130
+
+                    -- Ограничиваем скорость
+                    local velocity = direction * speed
+                    if velocity.Magnitude > speed then
+                        velocity = velocity.Unit * speed
+                    end
                     
+                    -- Создаем BodyVelocity и обновляем его каждый кадр
                     local bodyVelocity = Instance.new("BodyVelocity")
-                    bodyVelocity.Velocity = direction * speed
+                    bodyVelocity.Velocity = velocity
                     bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
                     bodyVelocity.Parent = hrp
                     
+                    -- Обновляем BodyVelocity до достижения цели
                     while (hrp.Position - targetPos).Magnitude > 3 and _G.AutoFly_Enabled do
-                        task.wait()
+                        bodyVelocity.Velocity = direction * speed
+                        task.wait(0.1)
                     end
                     
                     bodyVelocity:Destroy()
