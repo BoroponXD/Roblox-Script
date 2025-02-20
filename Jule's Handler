@@ -396,11 +396,13 @@ end
 local function autoFlyToObject() 
     local lastDirection = nil
     local lastTime = tick()
+    local lastPosition = nil
     
     -- Функция для перезапуска
     local function restartFunction()
         lastDirection = nil
         lastTime = tick() -- Обновляем время для перезапуска
+        lastPosition = nil
     end
 
     while true do
@@ -412,16 +414,22 @@ local function autoFlyToObject()
                 local hrp = char.HumanoidRootPart
                 local currentDirection = hrp.Velocity.unit
 
+                -- Проверяем, если направление изменилось
                 if lastDirection and (currentDirection - lastDirection).Magnitude > 0.1 then
                     lastTime = tick()  -- Сбрасываем таймер, если направление изменилось
                 end
                 
                 lastDirection = currentDirection
-            end
 
-            -- Если направление не менялось в течение 10 секунд, перезапускаем функцию
-            if tick() - lastTime >= 10 then
-                restartFunction()
+                -- Если персонаж не двигался на протяжении 10 секунд, перезапускаем
+                if tick() - lastTime >= 10 then
+                    -- Проверяем, изменилось ли положение персонажа
+                    if lastPosition and (hrp.Position - lastPosition).Magnitude < 0.1 then
+                        restartFunction()
+                    end
+                end
+                
+                lastPosition = hrp.Position
             end
 
             local trackedNames = {}
