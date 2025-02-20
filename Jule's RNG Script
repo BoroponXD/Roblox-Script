@@ -1,10 +1,22 @@
 --AutoCollect Items Script (First Release)
 --Here's 3 Function only
 local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+local PlaceId = game.PlaceId  -- ID текущего места
+local JobId = game.JobId      -- ID текущего игрового сервера
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local VirtualInputManager = game:GetService("VirtualInputManager")
-local TeleportService = game:GetService("TeleportService")
+local queueteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
+local TeleportCheck = false
+local KeepScriptOnRejoin = true  -- Убедись, что эта переменная установлена в true, если ты хочешь запускать скрипт.
+
+Players.LocalPlayer.OnTeleport:Connect(function(State)
+    if KeepScriptOnRejoin and not TeleportCheck and queueteleport then
+        TeleportCheck = true
+        queueteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/BoroponXD/Roblox-Script/refs/heads/main/Jule's%20RNG%20Script'))()")
+    end
+end)
 
 -- Создание экранного меню
 local ScreenGui = Instance.new("ScreenGui")
@@ -100,12 +112,12 @@ local function checkPotionsAndRejoin()
                 end
                 if missing and (currentTime - lastRejoinAttempt >= 5) then
                     if #Players:GetPlayers() <= 1 then
-		                Players.LocalPlayer:Kick("\nRejoining...")
-		                wait()
-		                TeleportService:Teleport(PlaceId, Players.LocalPlayer)
-	                else
-		                TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)
-					end
+                    Players.LocalPlayer:Kick("\nRejoining...")
+                    wait(0.1)  -- даем время на завершение кика
+                    TeleportService:Teleport(PlaceId, Players.LocalPlayer)  -- переподключаем
+                else
+                    TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)  -- если больше 1 игрока, то перезагружаем в ту же инстанцию
+                end
 				end
 			end
 		end
