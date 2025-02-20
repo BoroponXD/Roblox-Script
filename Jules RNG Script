@@ -4,10 +4,17 @@ end
 
 pcall(function() getgenv().AUTO_COLLECT_LOADED = true end)
 
+local cloneref = cloneref or function(o) return o end
+COREGUI = cloneref(game:GetService("CoreGui"))
+Players = cloneref(game:GetService("Players"))
+local TelepotService = game:GetService("TeleportService")
+PlaceId, JobId = game.PlaceId, game.JobId
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local VirtualInputManager = game:GetService("VirtualInputManager")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local TelepotService = game:GetService("TeleportService")
 
 if not game:IsLoaded() then
     game.Loaded:Wait()
@@ -20,11 +27,6 @@ if syn and syn.queue_on_teleport then
 elseif queue_on_teleport then
     queue_on_teleport(('loadstring(game:HttpGet("%s"))()'):format(SCRIPT_URL))
 end
-
-PlaceId, JobId = game.PlaceId, game.JobId
-local LocalPlayer = Players.LocalPlayer
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local function saveSettings()
     if writefile then
