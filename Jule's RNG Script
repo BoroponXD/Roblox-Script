@@ -45,7 +45,7 @@ Title.Font = Enum.Font.SourceSansBold
 
 local Credits = Instance.new("TextLabel", Frame)
 Credits.Size = UDim2.new(1, 0, 0.1, 0)
-Credits.Position = UDim2.new(0, 0, 0.1, 0)
+Credits.Position = UDim2.new(0, 0, 0.09, 0)
 Credits.Text = "Add Script to AutoExec!\nCredits: Boro\nFollow me on Roblox: BoroponXD"
 Credits.TextScaled = true
 Credits.TextColor3 = Color3.fromRGB(200, 200, 200)
