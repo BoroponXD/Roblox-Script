@@ -43,6 +43,15 @@ Credits.TextColor3 = Color3.fromRGB(200, 200, 200)
 Credits.BackgroundTransparency = 1
 Credits.Font = Enum.Font.SourceSans
 
+local Necessary = Instance.new("TextLabel", Frame)
+Necessary.Size = UDim2.new(1, 0, 0.1, 0)
+Necessary.Position = UDim2.new(0, 0, 0.85, 0)
+Necessary.Text = "|\nNecessary for AutoFly"
+Necessary.TextScaled = true
+Necessary.TextColor3 = Color3.fromRGB(200, 200, 200)
+Necessary.BackgroundTransparency = 1
+Necessary.Font = Enum.Font.SourceSansBold
+
 -- Функция для создания кнопки
 local function createButton(parent, text, posY, toggleVar)
     local button = Instance.new("TextButton", parent)
