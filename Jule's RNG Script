@@ -3,22 +3,16 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-
-local ESP_Objects = {}
-
--- Глобальные переменные для функций
-_G.ESP_Enabled = false
-_G.AutoCollect_Enabled = false
-_G.AutoFly_Enabled = false
-_G.Noclip_Enabled = false
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local TeleportService = game:GetService("TeleportService")
 
 -- Создание экранного меню
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
 local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0, 250, 0, 320)
-Frame.Position = UDim2.new(1, -270, 0.5, -120)
+Frame.Size = UDim2.new(0, 250, 0, 360)
+Frame.Position = UDim2.new(1, -270, 0.5, -160)
 Frame.BackgroundColor3 = Color3.new(0, 0, 0)
 Frame.BackgroundTransparency = 0.4
 Frame.BorderSizePixel = 2
@@ -26,7 +20,7 @@ Frame.Active = true
 Frame.Draggable = true
 
 local Title = Instance.new("TextLabel", Frame)
-Title.Size = UDim2.new(1, 0, 0.12, 0)
+Title.Size = UDim2.new(1, 0, 0.1, 0)
 Title.Position = UDim2.new(0, 0, 0, 0)
 Title.Text = "Jule's AutoCollect"
 Title.TextScaled = true
@@ -35,7 +29,7 @@ Title.BackgroundTransparency = 1
 Title.Font = Enum.Font.SourceSansBold
 
 local Credits = Instance.new("TextLabel", Frame)
-Credits.Size = UDim2.new(1, 0, 0.1, 0)
+Credits.Size = UDim2.new(1, 0, 0.08, 0)
 Credits.Position = UDim2.new(0, 0, 0.12, 0)
 Credits.Text = "Credits: Boro\nFollow me on Roblox: BoroponXD"
 Credits.TextScaled = true
@@ -45,12 +39,21 @@ Credits.Font = Enum.Font.SourceSans
 
 local Necessary = Instance.new("TextLabel", Frame)
 Necessary.Size = UDim2.new(1, 0, 0.1, 0)
-Necessary.Position = UDim2.new(0, 0, 0.85, 0)
-Necessary.Text = "|\nNecessary for AutoFly"
+Necessary.Position = UDim2.new(0, 0, 0.69, 0)
+Necessary.Text = "\n|\nNecessary for AutoFly"
 Necessary.TextScaled = true
 Necessary.TextColor3 = Color3.fromRGB(200, 200, 200)
 Necessary.BackgroundTransparency = 1
 Necessary.Font = Enum.Font.SourceSansBold
+
+local Real = Instance.new("TextLabel", Frame)
+Real.Size = UDim2.new(1, 0, 0.14, 0)
+Real.Position = UDim2.new(0, 0, 0.87, 0)
+Real.Text = "\n|\nRequires Infinite Yield\n(command rejoin binded on 'U')"
+Real.TextScaled = true
+Real.TextColor3 = Color3.fromRGB(200, 200, 200)
+Real.BackgroundTransparency = 1
+Real.Font = Enum.Font.SourceSansBold
 
 -- Функция для создания кнопки
 local function createButton(parent, text, posY, toggleVar)
@@ -66,22 +69,55 @@ local function createButton(parent, text, posY, toggleVar)
     button.MouseButton1Click:Connect(function()
         _G[toggleVar] = not _G[toggleVar]
         button.Text = text .. ": " .. (_G[toggleVar] and "ON" or "OFF")
-
-        if text == "ESP" then
-            if _G[toggleVar] then enableESP() else disableESP() end
-        end
     end)
 
     return button
 end
 
 -- Создание кнопок
-local AutoCollectButton = createButton(Frame, "AutoCollect", 0.45, "AutoCollect_Enabled")
-local AutoFlyButton = createButton(Frame, "AutoFly", 0.60, "AutoFly_Enabled")
-local NoclipButton = createButton(Frame, "Noclip", 0.75, "Noclip_Enabled")
+local AutoCollectButton = createButton(Frame, "AutoCollect", 0.35, "AutoCollect_Enabled")
+local AutoFlyButton = createButton(Frame, "AutoFly", 0.48, "AutoFly_Enabled")
+local NoclipButton = createButton(Frame, "Noclip", 0.61, "Noclip_Enabled")
+local AutoRejoinButton = createButton(Frame, "AutoRejoin", 0.8, "AutoRejoin_Enabled")
+
+-- Функция для проверки наличия зелий и автоматического нажатия "U"
+local lastRejoinAttempt = 0
+
+local function checkPotionsAndRejoin()
+    while true do
+        task.wait(5) -- Проверять каждые 5 секунд
+        if _G.AutoRejoin_Enabled then
+            local currentTime = tick()
+            local potionsFolder = workspace:FindFirstChild("Game") and workspace.Game:FindFirstChild("Potions")
+            if potionsFolder then
+                local neededPotions = {"Gem", "lucky_potion", "speed_potion", "ultimate_potion"}
+                local missing = true
+                for _, potion in ipairs(neededPotions) do
+                    if potionsFolder:FindFirstChild(potion) then
+                        missing = false
+                        break
+                    end
+                end
+                if missing and (currentTime - lastRejoinAttempt >= 5) then
+                    if #Players:GetPlayers() <= 1 then
+		                Players.LocalPlayer:Kick("\nRejoining...")
+		                wait()
+		                TeleportService:Teleport(PlaceId, Players.LocalPlayer)
+	                else
+		                TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)
+					end
+				end
+			end
+		end
+	end
+end
+
+-- Запуск проверки в отдельном потоке
+spawn(checkPotionsAndRejoin)
+
 
 -- Кнопка для включения/выключения всех функций
-local AllFunctionsButton = createButton(Frame, "Toggle All", 0.25, "")
+local AllFunctionsButton = createButton(Frame, "Toggle All", 0.2, "")
 
 AllFunctionsButton.MouseButton1Click:Connect(function()
     local newState = not (_G.ESP_Enabled or _G.AutoCollect_Enabled or _G.AutoFly_Enabled or _G.Noclip_Enabled)
