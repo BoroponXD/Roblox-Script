@@ -21,7 +21,6 @@ local function enableCameraNoclip()
         task.wait()
         if Camera then
             Camera.CameraType = Enum.CameraType.Scriptable -- Делаем камеру свободной
-            Camera.CFrame = Camera.CFrame -- Оставляем камеру в том же месте (обход возможных сбоев)
         end
     end
 end
