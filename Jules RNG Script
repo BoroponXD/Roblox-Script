@@ -12,7 +12,7 @@ local TelepotService = game:GetService("TeleportService")
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
-repeat task.wait() until LocalPlayer and LocalPlayer.Character and Camera
+repeat task.wait() until LocalPlayer and LocalPlayer.Character
 
 local SCRIPT_URL = "https://raw.githubusercontent.com/BoroponXD/Roblox-Script/refs/heads/main/Jules%20RNG%20Script"
 if syn and syn.queue_on_teleport then
