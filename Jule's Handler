@@ -61,7 +61,7 @@ ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
 local Frame = Instance.new("Frame", ScreenGui)
 Frame.Size = UDim2.new(0, 250, 0, 360)
-Frame.Position = UDim2.new(0.7, -270, 0.5, -160)
+Frame.Position = UDim2.new(0.8, -270, 0.5, -160)
 Frame.BackgroundColor3 = Color3.new(0, 0, 0)
 Frame.BackgroundTransparency = 0.2
 Frame.BorderSizePixel = 2
@@ -173,7 +173,6 @@ local function updateButtonTexts()
     AllFunctionsButton.Text = "Toggle All"
 end
 
--- Обновляем текст кнопок
 local function updateButtonTexts()
     AutoCollectButton.Text = "AutoCollect: " .. (_G.AutoCollect_Enabled and "ON" or "OFF")
     AutoFlyButton.Text = "AutoFly: " .. (_G.AutoFly_Enabled and "ON" or "OFF")
@@ -182,7 +181,6 @@ local function updateButtonTexts()
     AllFunctionsButton.Text = "Toggle All"
 end
 
--- Загрузка настроек и обновление кнопок
 local function loadSettings()
     if readfile and isfile("autocollect_settings.json") then
         local settingsData = readfile("autocollect_settings.json")
@@ -195,7 +193,6 @@ local function loadSettings()
         _G.Settings = settings.Settings or _G.Settings
     end
 
-    -- Обновляем текст и цвет кнопок после загрузки настроек
     updateButtonTexts()
     AutoCollectButton.BackgroundColor3 = _G.AutoCollect_Enabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
     AutoFlyButton.BackgroundColor3 = _G.AutoFly_Enabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
@@ -298,7 +295,6 @@ local lastRejoinAttempt = 0
 local cooldown = 10  -- Время в секундах, которое необходимо подождать между попытками перезагрузки.
 
 local function displayNotification(message)
-    -- Создаём экранное уведомление
     local ScreenGui = LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("NotificationGui")
     if not ScreenGui then
         ScreenGui = Instance.new("ScreenGui")
@@ -318,7 +314,6 @@ local function displayNotification(message)
     Notification.BorderSizePixel = 2
     Notification.Parent = ScreenGui
 
-    -- Убираем уведомление через 5 секунд
     task.wait(0.8)
     Notification:TweenPosition(UDim2.new(0.8, -310, 0, 100), "Out", "Sine", 0.5, true, function()
         Notification:Destroy()
@@ -344,7 +339,6 @@ local function checkPotionsAndRejoin()
                 wait(1)
                 local countdown = 5
                 
-                -- Показываем отсчёт для перезагрузки
                 while countdown > 0 and _G.AutoRejoin_Enabled do
                     displayNotification("Rejoin in " .. countdown .. "...")
                     countdown = countdown - 1
