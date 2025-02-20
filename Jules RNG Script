@@ -4,37 +4,38 @@ end
 
 pcall(function() getgenv().AUTO_COLLECT_LOADED = true end)
 
-local cloneref = cloneref or function(o) return o end
-local COREGUI = cloneref(game:GetService("CoreGui"))
-local Players = cloneref(game:GetService("Players"))
-local TeleportService = cloneref(game:GetService("TeleportService"))
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
 
+-- Ожидание загрузки игры и игрока
 if not game:IsLoaded() then
-    local msg = Instance.new("Message")
-    msg.Parent = COREGUI
-    msg.Text = "AutoCollect Script is waiting for the game to load..."
     game.Loaded:Wait()
-    msg:Destroy()
+end
+repeat task.wait() until LocalPlayer and LocalPlayer.Character and Camera
+
+-- Функция Noclip для камеры
+local function enableCameraNoclip()
+    while true do
+        task.wait()
+        if Camera then
+            Camera.CameraType = Enum.CameraType.Scriptable -- Делаем камеру свободной
+            Camera.CFrame = Camera.CFrame -- Оставляем камеру в том же месте (обход возможных сбоев)
+        end
+    end
 end
 
+-- Запуск Noclip
+task.spawn(enableCameraNoclip)
+
+-- Поддержка телепорта (перезапуск скрипта после TeleportService:Teleport)
 local SCRIPT_URL = "https://raw.githubusercontent.com/BoroponXD/Roblox-Script/refs/heads/main/Jules%20RNG%20Script"
-
--- Загружаем основной скрипт
-local success, err = pcall(function()
-    loadstring(game:HttpGet(SCRIPT_URL))()
-end)
-
-if not success then
-    warn("Ошибка при загрузке AutoCollect:", err)
-end
-
--- Поддержка сохранения скрипта при телепорте
 if syn and syn.queue_on_teleport then
     syn.queue_on_teleport(('loadstring(game:HttpGet("%s"))()'):format(SCRIPT_URL))
 elseif queue_on_teleport then
     queue_on_teleport(('loadstring(game:HttpGet("%s"))()'):format(SCRIPT_URL))
 end
-
 PlaceId, JobId = game.PlaceId, game.JobId
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
