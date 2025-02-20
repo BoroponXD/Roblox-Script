@@ -8,6 +8,16 @@ local TeleportService = game:GetService("TeleportService")
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local VirtualInputManager = game:GetService("VirtualInputManager")
+-- Дополнительные переменные для перезагрузки скрипта
+local TeleportCheck = false
+local KeepScript = true  -- Флаг для контролирования автоматической перезагрузки скрипта
+
+Players.LocalPlayer.OnTeleport:Connect(function(State)
+    if KeepScript and (not TeleportCheck) and State == Enum.TeleportState.InProgress then
+        TeleportCheck = true
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/BoroponXD/Roblox-Script/refs/heads/main/Jule\'s%20AutoCollect%20Script'))()
+    end
+end)
 
 local function saveSettings()
     if writefile then
