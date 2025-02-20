@@ -62,15 +62,6 @@ Necessary.TextColor3 = Color3.fromRGB(200, 200, 200)
 Necessary.BackgroundTransparency = 1
 Necessary.Font = Enum.Font.SourceSansBold
 
-local Real = Instance.new("TextLabel", Frame)
-Real.Size = UDim2.new(1, 0, 0.14, 0)
-Real.Position = UDim2.new(0, 0, 0.87, 0)
-Real.Text = "\n|\nRequires Infinite Yield\n(command rejoin binded on 'U')"
-Real.TextScaled = true
-Real.TextColor3 = Color3.fromRGB(200, 200, 200)
-Real.BackgroundTransparency = 1
-Real.Font = Enum.Font.SourceSansBold
-
 -- Функция для создания кнопки
 local function createButton(parent, text, posY, toggleVar)
     local button = Instance.new("TextButton", parent)
@@ -98,23 +89,33 @@ local AutoCollectButton = createButton(Frame, "AutoCollect", 0.35, "AutoCollect_
 local AutoFlyButton = createButton(Frame, "AutoFly", 0.48, "AutoFly_Enabled")
 local NoclipButton = createButton(Frame, "Noclip", 0.61, "Noclip_Enabled")
 local AutoRejoinButton = createButton(Frame, "AutoRejoin", 0.8, "AutoRejoin_Enabled")
-local AllFunctionsButton = createButton(Frame, "Toggle All", 0.2, "")
+-- Создание кнопки "Toggle All" отдельно
+local AllFunctionsButton = Instance.new("TextButton", Frame)
+AllFunctionsButton.Size = UDim2.new(0.8, 0, 0.1, 0)
+AllFunctionsButton.Position = UDim2.new(0.1, 0, 0.2, 0)
+AllFunctionsButton.Text = "Toggle All"
+AllFunctionsButton.TextColor3 = Color3.new(1, 1, 1)
+AllFunctionsButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+AllFunctionsButton.BackgroundTransparency = 0.2
+AllFunctionsButton.BorderSizePixel = 2
 
+-- Обработчик клика на кнопку "Toggle All"
 AllFunctionsButton.MouseButton1Click:Connect(function()
     local newState = not (_G.AutoCollect_Enabled or _G.AutoFly_Enabled or _G.Noclip_Enabled)
 
     _G.AutoCollect_Enabled = newState
     _G.AutoFly_Enabled = newState
     _G.Noclip_Enabled = newState
-	_G.AutoRejoin_Enabled = newState
+    _G.AutoRejoin_Enabled = newState
 
     AutoCollectButton.Text = "AutoCollect: " .. (newState and "ON" or "OFF")
     AutoFlyButton.Text = "AutoFly: " .. (newState and "ON" or "OFF")
     NoclipButton.Text = "Noclip: " .. (newState and "ON" or "OFF")
-	AutoRejoinButton.Text = "AutoRejoin: " .. (newState and "ON" or "OFF")
+    AutoRejoinButton.Text = "AutoRejoin: " .. (newState and "ON" or "OFF")
     AllFunctionsButton.Text = "Toggle All"
 
-    end)
+	saveSettings()
+end)
 
 -- Функция для загрузки настроек
 local function loadSettings()
