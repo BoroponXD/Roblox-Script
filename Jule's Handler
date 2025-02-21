@@ -321,17 +321,18 @@ local function displayNotification(message)
 end
 
 local function autoRejoinAfterDelay()
-    wait(30)
     
     if _G.AutoRejoin_Enabled then
         displayNotification("Rejoining after 30 seconds...")
-
-        if #Players:GetPlayers() <= 1 then
-            Players.LocalPlayer:Kick("\nRejoining...")
-            wait(0.1)
-            TeleportService:Teleport(PlaceId, Players.LocalPlayer)
-        else
-            TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)
+        wait(30)
+		if _G.AutoRejoin_Enabled then
+            if #Players:GetPlayers() <= 1 then
+                Players.LocalPlayer:Kick("\nRejoining...")
+                wait(0.1)
+                TeleportService:Teleport(PlaceId, Players.LocalPlayer)
+            else
+                TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)
+            end
         end
     end
 end
