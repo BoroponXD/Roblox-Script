@@ -653,22 +653,32 @@ local function getInventoryStats()
 
             local hud = interface:FindFirstChild("HUD")
             if hud then
+                print("HUD found!")
                 local diamondsFrame = hud:FindFirstChild("Diamonds")
                 if diamondsFrame then
+                    print("Diamonds found!")
                     local amountLabel = diamondsFrame:FindFirstChild("Amount")
                     if amountLabel and amountLabel:IsA("TextLabel") then
                         print("Amount.Text: " .. amountLabel.Text)
-
                         local formattedText = string.gsub(amountLabel.Text, ",", ".")
                         local gemsValue = tonumber(formattedText)
                         if gemsValue then
                             stats.gems = gemsValue
+                            print("Gems: " .. gemsValue)
+                        else
+                            print("Error while trying to rewrite! Text: " .. formattedText)
                         end
                     end
                 end
             end
         end
     end
+
+    print("Got stats:")
+    print("Ultimate Potion: " .. stats.ultimate_potion)
+    print("Lucky Potion: " .. stats.lucky_potion)
+    print("Speed Potion: " .. stats.speed_potion)
+    print("Gems: " .. stats.gems)
 
     closeInventory()
 
@@ -679,6 +689,7 @@ local function saveStatsToFile()
     local stats = getInventoryStats()
     local encodedStats = HttpService:JSONEncode(stats)
 
+    print("JSON-data to write:")
     print(encodedStats)
 
     writefile("stats.json", encodedStats)
