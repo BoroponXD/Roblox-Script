@@ -95,6 +95,67 @@ Necessary.TextColor3 = Color3.fromRGB(200, 200, 200)
 Necessary.BackgroundTransparency = 1
 Necessary.Font = Enum.Font.SourceSansBold
 
+-- Создаём TextLabel для отображения таймера
+local timerLabel = Instance.new("TextLabel", Frame)
+timerLabel.Size = UDim2.new(1, 0, 0.1, 0)  -- Размер текстового метки
+timerLabel.Position = UDim2.new(0, 0, 0.9, 0)  -- Позиция внизу (можно настроить)
+timerLabel.Text = "|\nTimer: AutoRejoin is OFF\n(AutoRejoin after 30 secs is necessary due to a bugs)"  -- Изначальный текст
+timerLabel.TextColor3 = Color3.fromRGB(200, 200, 200)  -- Цвет текста
+timerLabel.BackgroundTransparency = 1  -- Прозрачный фон
+timerLabel.Font = Enum.Font.SourceSansBold
+timerLabel.TextSize = 10  -- Фиксированный размер шрифта
+timerLabel.TextScaled = false  -- Отключаем авто-масштабирование текста
+
+-- Таймер на 30 секунд (точность до десятых)
+local timer = 0
+local timerRunning = false
+
+-- Функция для запуска таймера
+local function startTimer()
+    timer = 30
+    timerRunning = true
+    timerLabel.Text = string.format("|\nTimer: %.1f \n(AutoRejoin after 30 secs is necessary due to a bugs)", timer)  -- Изначально отображаем 30 секунд
+end
+
+-- Функция для остановки таймера
+local function stopTimer()
+    timerRunning = false
+    timerLabel.Text = "|\nTimer: AutoRejoin is OFF\n(AutoRejoin after 30 secs is necessary due to a bugs)"  -- Сбрасываем текст при остановке
+end
+
+-- Основной цикл проверки состояния
+game:GetService("RunService").Heartbeat:Connect(function()
+    -- Если таймер работает, уменьшаем время
+    if timerRunning then
+        timer = timer - game:GetService("RunService").Heartbeat:Wait()
+        timerLabel.Text = string.format("|\nTimer: %.1f \n(AutoRejoin after 30 secs is necessary due to a bugs)", timer)  -- Обновляем текст с точностью до десятых
+
+        -- Если время закончилось, останавливаем таймер
+        if timer <= 0 then
+            stopTimer()
+            print("Таймер завершён.")
+		if _G.AutoRejoin_Enabled then
+            if #Players:GetPlayers() <= 1 then
+                Players.LocalPlayer:Kick("\nRejoining...")
+                wait(0.1)
+                TeleportService:Teleport(PlaceId, Players.LocalPlayer)
+            else
+                TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)
+            end
+        end
+    end
+end
+
+    -- Проверяем состояние _G.AutoRejoin_Enabled
+    if _G.AutoRejoin_Enabled and not timerRunning then
+        startTimer()
+        print("Таймер запущен.")
+    elseif not _G.AutoRejoin_Enabled and timerRunning then
+        stopTimer()
+        print("Таймер остановлен.")
+    end
+end)
+
 local function createButton(parent, text, posY, toggleVar)
     local button = Instance.new("TextButton", parent)
     button.Size = UDim2.new(0.8, 0, 0.1, 0)
@@ -318,23 +379,6 @@ local function displayNotification(message)
     Notification:TweenPosition(UDim2.new(0.8, -310, 0, 100), "Out", "Sine", 0.5, true, function()
         Notification:Destroy()
     end)
-end
-
-local function autoRejoinAfterDelay()
-    
-    if _G.AutoRejoin_Enabled then
-        displayNotification("Rejoining after 30 seconds...")
-        wait(30)
-		if _G.AutoRejoin_Enabled then
-            if #Players:GetPlayers() <= 1 then
-                Players.LocalPlayer:Kick("\nRejoining...")
-                wait(0.1)
-                TeleportService:Teleport(PlaceId, Players.LocalPlayer)
-            else
-                TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)
-            end
-        end
-    end
 end
 
 local function checkPotionsAndRejoin()
