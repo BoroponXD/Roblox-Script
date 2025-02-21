@@ -138,56 +138,6 @@ Necessary.TextColor3 = Color3.fromRGB(200, 200, 200)
 Necessary.BackgroundTransparency = 1
 Necessary.Font = Enum.Font.SourceSansBold
 
-local timerLabel = Instance.new("TextLabel", Frame)
-timerLabel.Size = UDim2.new(1, 0, 0.1, 0)
-timerLabel.Position = UDim2.new(0, 0, 0.9, 0)
-timerLabel.Text = "|\nTimer: AutoRejoin is OFF\n(AutoRejoin after 30 secs is necessary due to a bugs)"
-timerLabel.TextColor3 = Color3.fromRGB(200, 200, 200)  -- Цвет текста
-timerLabel.BackgroundTransparency = 1
-timerLabel.Font = Enum.Font.SourceSansBold
-timerLabel.TextSize = 10
-timerLabel.TextScaled = false
-
-local timer = 0
-local timerRunning = false
-
-local function startTimer()
-    timer = 30
-    timerRunning = true
-    timerLabel.Text = string.format("|\nTimer: %.1f \n(AutoRejoin after 30 secs is necessary due to a bugs)", timer)
-end
-
-local function stopTimer()
-    timerRunning = false
-    timerLabel.Text = "|\nTimer: AutoRejoin is OFF\n(AutoRejoin after 30 secs is necessary due to a bugs)"
-end
-
-game:GetService("RunService").Heartbeat:Connect(function()
-    if timerRunning then
-        timer = timer - game:GetService("RunService").Heartbeat:Wait()
-        timerLabel.Text = string.format("|\nTimer: %.1f \n(AutoRejoin after 30 secs is necessary due to a bugs)", timer)
-
-    if timer <= 0 then
-        stopTimer()
-		if _G.AutoRejoin_Enabled then
-            if #Players:GetPlayers() <= 1 then
-                Players.LocalPlayer:Kick("\nRejoining...")
-                wait(0.1)
-                TeleportService:Teleport(PlaceId, Players.LocalPlayer)
-            else
-                TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)
-            end
-        end
-    end
-end
-
-    if _G.AutoRejoin_Enabled and not timerRunning then
-        startTimer()
-    elseif not _G.AutoRejoin_Enabled and timerRunning then
-        stopTimer()
-    end
-end)
-
 local function createButton(parent, text, posY, toggleVar)
     local button = Instance.new("TextButton", parent)
     button.Size = UDim2.new(0.8, 0, 0.1, 0)
