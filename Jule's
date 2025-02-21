@@ -9,6 +9,14 @@ local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
+local HttpService = game:GetService("HttpService")
+local Stats = PlayerGui and PlayerGui:FindFirstChild("Stats")
+local Main = Stats and Stats:FindFirstChild("Main")
+local EventLabel = Main and Main:FindFirstChild("Event")
+
+local BiomeSearchOn = _G.BiomeButton_Enabled
+local StayBiomes = {}
+local checkingBiome = false
 
 _G.Settings = {
     Gem = true,
@@ -114,7 +122,7 @@ Frame.Draggable = true
 local Title = Instance.new("TextLabel", Frame)
 Title.Size = UDim2.new(1, 0, 0.1, 0)
 Title.Position = UDim2.new(0, 0, 0, 0)
-Title.Text = "Jule's AutoCollect"
+Title.Text = "Jule's RNG Script"
 Title.TextScaled = true
 Title.TextColor3 = Color3.new(1, 1, 1)
 Title.BackgroundTransparency = 1
@@ -131,52 +139,87 @@ Credits.Font = Enum.Font.SourceSans
 
 local Necessary = Instance.new("TextLabel", Frame)
 Necessary.Size = UDim2.new(1, 0, 0.1, 0)
-Necessary.Position = UDim2.new(0, 0, 0.69, 0)
+Necessary.Position = UDim2.new(0, 0, 0.6, 0)
 Necessary.Text = "\n|\nNecessary for AutoFly"
 Necessary.TextScaled = true
 Necessary.TextColor3 = Color3.fromRGB(200, 200, 200)
 Necessary.BackgroundTransparency = 1
 Necessary.Font = Enum.Font.SourceSansBold
 
-local function createButton(parent, text, posY, toggleVar)
-    local button = Instance.new("TextButton", parent)
-    button.Size = UDim2.new(0.8, 0, 0.1, 0)
-    button.Position = UDim2.new(0.1, 0, posY, 0)
-    button.TextColor3 = Color3.new(1, 1, 1)
-    button.BackgroundTransparency = 0.6
-    button.BorderSizePixel = 2
+local No = Instance.new("TextLabel", Frame)
+No.Size = UDim2.new(1, 0, 0.1, 0)
+No.Position = UDim2.new(0, 0, 0.872, 0)
+No.Text = "Recommended using on Private Server\n\nSomething will be added here soon.."
+No.TextScaled = true
+No.TextColor3 = Color3.fromRGB(200, 200, 200)
+No.BackgroundTransparency = 1
+No.Font = Enum.Font.SourceSansBold
 
-    local function updateButtonState()
-        local state = _G[toggleVar] or false
-        button.Text = text .. ": " .. (state and "ON" or "OFF")
-        button.BackgroundColor3 = state and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-    end
+-- Create AutoCollect Button
+local AutoCollectButton = Instance.new("TextButton", Frame)
+AutoCollectButton.Size = UDim2.new(0.65, 0, 0.1, 0)
+AutoCollectButton.Position = UDim2.new(0.1, 0, 0.32, 0)
+AutoCollectButton.Text = "AutoCollect: OFF"
+AutoCollectButton.TextColor3 = Color3.new(1, 1, 1)
+AutoCollectButton.BackgroundTransparency = 0.6
+AutoCollectButton.BorderSizePixel = 2
 
-    button.MouseButton1Click:Connect(function()
-        _G[toggleVar] = not _G[toggleVar]
-        updateButtonState()
-        saveSettings()
-    end)
-
-    updateButtonState()
-
-    return button
-end
-
-local function toggleAllButtons(buttons, state)
-    for _, buttonData in pairs(buttons) do
-        _G[buttonData.toggleVar] = state
-        buttonData.button.Text = buttonData.text .. ": " .. (state and "ON" or "OFF")
-        buttonData.button.BackgroundColor3 = state and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-    end
+AutoCollectButton.MouseButton1Click:Connect(function()
+    _G.AutoCollect_Enabled = not _G.AutoCollect_Enabled
+    AutoCollectButton.Text = "AutoCollect: " .. (_G.AutoCollect_Enabled and "ON" or "OFF")
+    AutoCollectButton.BackgroundColor3 = _G.AutoCollect_Enabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
     saveSettings()
-end
+end)
 
-local AutoCollectButton = createButton(Frame, "AutoCollect", 0.35, "AutoCollect_Enabled")
-local AutoFlyButton = createButton(Frame, "AutoFly", 0.48, "AutoFly_Enabled")
-local NoclipButton = createButton(Frame, "Noclip", 0.61, "Noclip_Enabled")
-local AutoRejoinButton = createButton(Frame, "AutoRejoin", 0.8, "AutoRejoin_Enabled")
+-- Create AutoFly Button
+local AutoFlyButton = Instance.new("TextButton", Frame)
+AutoFlyButton.Size = UDim2.new(0.8, 0, 0.1, 0)
+AutoFlyButton.Position = UDim2.new(0.1, 0, 0.43, 0)
+AutoFlyButton.Text = "AutoFly: OFF"
+AutoFlyButton.TextColor3 = Color3.new(1, 1, 1)
+AutoFlyButton.BackgroundTransparency = 0.6
+AutoFlyButton.BorderSizePixel = 2
 
+AutoFlyButton.MouseButton1Click:Connect(function()
+    _G.AutoFly_Enabled = not _G.AutoFly_Enabled
+    AutoFlyButton.Text = "AutoFly: " .. (_G.AutoFly_Enabled and "ON" or "OFF")
+    AutoFlyButton.BackgroundColor3 = _G.AutoFly_Enabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+    saveSettings()
+end)
+
+-- Create Noclip Button
+local NoclipButton = Instance.new("TextButton", Frame)
+NoclipButton.Size = UDim2.new(0.8, 0, 0.1, 0)
+NoclipButton.Position = UDim2.new(0.1, 0, 0.54, 0)
+NoclipButton.Text = "Noclip: OFF"
+NoclipButton.TextColor3 = Color3.new(1, 1, 1)
+NoclipButton.BackgroundTransparency = 0.6
+NoclipButton.BorderSizePixel = 2
+
+NoclipButton.MouseButton1Click:Connect(function()
+    _G.Noclip_Enabled = not _G.Noclip_Enabled
+    NoclipButton.Text = "Noclip: " .. (_G.Noclip_Enabled and "ON" or "OFF")
+    NoclipButton.BackgroundColor3 = _G.Noclip_Enabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+    saveSettings()
+end)
+
+-- Create AutoRejoin Button
+local AutoRejoinButton = Instance.new("TextButton", Frame)
+AutoRejoinButton.Size = UDim2.new(0.8, 0, 0.1, 0)
+AutoRejoinButton.Position = UDim2.new(0.1, 0, 0.72, 0)
+AutoRejoinButton.Text = "AutoRejoin: OFF"
+AutoRejoinButton.TextColor3 = Color3.new(1, 1, 1)
+AutoRejoinButton.BackgroundTransparency = 0.6
+AutoRejoinButton.BorderSizePixel = 2
+
+AutoRejoinButton.MouseButton1Click:Connect(function()
+    _G.AutoRejoin_Enabled = not _G.AutoRejoin_Enabled
+    AutoRejoinButton.Text = "AutoRejoin: " .. (_G.AutoRejoin_Enabled and "ON" or "OFF")
+    AutoRejoinButton.BackgroundColor3 = _G.AutoRejoin_Enabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+    saveSettings()
+end)
+
+-- Create Toggle All Button
 local AllFunctionsButton = Instance.new("TextButton", Frame)
 AllFunctionsButton.Size = UDim2.new(0.8, 0, 0.1, 0)
 AllFunctionsButton.Position = UDim2.new(0.1, 0, 0.2, 0)
@@ -207,14 +250,6 @@ AllFunctionsButton.MouseButton1Click:Connect(function()
 
     saveSettings()
 end)
-
-local function updateButtonTexts()
-    AutoCollectButton.Text = "AutoCollect: " .. (_G.AutoCollect_Enabled and "ON" or "OFF")
-    AutoFlyButton.Text = "AutoFly: " .. (_G.AutoFly_Enabled and "ON" or "OFF")
-    NoclipButton.Text = "Noclip: " .. (_G.Noclip_Enabled and "ON" or "OFF")
-    AutoRejoinButton.Text = "AutoRejoin: " .. (_G.AutoRejoin_Enabled and "ON" or "OFF")
-    AllFunctionsButton.Text = "Toggle All"
-end
 
 local function updateButtonTexts()
     AutoCollectButton.Text = "AutoCollect: " .. (_G.AutoCollect_Enabled and "ON" or "OFF")
@@ -268,15 +303,16 @@ local function loadSettings()
         end
     end
 end
+
 loadSettings()
 
 local SettingsButton = Instance.new("TextButton", Frame)
-SettingsButton.Size = UDim2.new(0.067, 0, 0.045, 0)
-SettingsButton.Position = UDim2.new(0.92, 0, 0.4, 0)
+SettingsButton.Size = UDim2.new(0.115, 0, 0.09, 0)
+SettingsButton.Position = UDim2.new(0.78, 0, 0.324, 0)
 SettingsButton.Text = "⚙"
-SettingsButton.TextScaled = true
+SettingsButton.TextScaled = false
 SettingsButton.TextColor3 = Color3.new(1, 1, 1)
-SettingsButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+SettingsButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 SettingsButton.BackgroundTransparency = 0
 SettingsButton.BorderSizePixel = 2
 
