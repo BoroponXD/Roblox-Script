@@ -380,7 +380,7 @@ local function checkPotionsAndRejoin()
             if missing and _G.AutoRejoin_Enabled then
                 displayNotification("No Items found!")
                 wait(1)
-                local countdown = 5
+                local countdown = 3
                 
                 while countdown > 0 and _G.AutoRejoin_Enabled do
                     displayNotification("Rejoin in " .. countdown .. "...")
