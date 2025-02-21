@@ -56,6 +56,49 @@ local function saveSettings()
     end
 end
 
+local player = game.Players.LocalPlayer
+local spawnPosition = player.Character.HumanoidRootPart.Position -- Инициализируем спавн на текущей позиции игрока
+
+local function checkPlayerPosition()
+    while true do
+        wait(1)
+
+        local currentPosition = player.Character.HumanoidRootPart.Position
+        local distance = (currentPosition - spawnPosition).Magnitude
+        local heightDifference = currentPosition.Y - spawnPosition.Y
+
+        if heightDifference > 150 and _G.AutoRejoin_Enabled then
+            if #Players:GetPlayers() <= 1 then
+                Players.LocalPlayer:Kick("\nRejoining due to a bug detected...")
+                wait(0.1)
+                TeleportService:Teleport(PlaceId, Players.LocalPlayer)
+            else
+                TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)
+            end
+        end
+
+        if heightDifference < -5 and _G.AutoRejoin_Enabled then
+            if #Players:GetPlayers() <= 1 then
+                Players.LocalPlayer:Kick("\nRejoining due to a bug detected...")
+                wait(0.1)
+                TeleportService:Teleport(PlaceId, Players.LocalPlayer)
+            else
+                TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)
+            end
+        end
+
+        if distance > 800 and _G.AutoRejoin_Enabled then
+            if #Players:GetPlayers() <= 1 then
+                Players.LocalPlayer:Kick("\nRejoining due to a bug detected...")
+                wait(0.1)
+                TeleportService:Teleport(PlaceId, Players.LocalPlayer)
+            else
+                TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)
+            end
+        end
+    end
+end
+
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = COREGUI
 
@@ -95,45 +138,37 @@ Necessary.TextColor3 = Color3.fromRGB(200, 200, 200)
 Necessary.BackgroundTransparency = 1
 Necessary.Font = Enum.Font.SourceSansBold
 
--- Создаём TextLabel для отображения таймера
 local timerLabel = Instance.new("TextLabel", Frame)
-timerLabel.Size = UDim2.new(1, 0, 0.1, 0)  -- Размер текстового метки
-timerLabel.Position = UDim2.new(0, 0, 0.9, 0)  -- Позиция внизу (можно настроить)
-timerLabel.Text = "|\nTimer: AutoRejoin is OFF\n(AutoRejoin after 30 secs is necessary due to a bugs)"  -- Изначальный текст
+timerLabel.Size = UDim2.new(1, 0, 0.1, 0)
+timerLabel.Position = UDim2.new(0, 0, 0.9, 0)
+timerLabel.Text = "|\nTimer: AutoRejoin is OFF\n(AutoRejoin after 30 secs is necessary due to a bugs)"
 timerLabel.TextColor3 = Color3.fromRGB(200, 200, 200)  -- Цвет текста
-timerLabel.BackgroundTransparency = 1  -- Прозрачный фон
+timerLabel.BackgroundTransparency = 1
 timerLabel.Font = Enum.Font.SourceSansBold
-timerLabel.TextSize = 10  -- Фиксированный размер шрифта
-timerLabel.TextScaled = false  -- Отключаем авто-масштабирование текста
+timerLabel.TextSize = 10
+timerLabel.TextScaled = false
 
--- Таймер на 30 секунд (точность до десятых)
 local timer = 0
 local timerRunning = false
 
--- Функция для запуска таймера
 local function startTimer()
     timer = 30
     timerRunning = true
-    timerLabel.Text = string.format("|\nTimer: %.1f \n(AutoRejoin after 30 secs is necessary due to a bugs)", timer)  -- Изначально отображаем 30 секунд
+    timerLabel.Text = string.format("|\nTimer: %.1f \n(AutoRejoin after 30 secs is necessary due to a bugs)", timer)
 end
 
--- Функция для остановки таймера
 local function stopTimer()
     timerRunning = false
-    timerLabel.Text = "|\nTimer: AutoRejoin is OFF\n(AutoRejoin after 30 secs is necessary due to a bugs)"  -- Сбрасываем текст при остановке
+    timerLabel.Text = "|\nTimer: AutoRejoin is OFF\n(AutoRejoin after 30 secs is necessary due to a bugs)"
 end
 
--- Основной цикл проверки состояния
 game:GetService("RunService").Heartbeat:Connect(function()
-    -- Если таймер работает, уменьшаем время
     if timerRunning then
         timer = timer - game:GetService("RunService").Heartbeat:Wait()
-        timerLabel.Text = string.format("|\nTimer: %.1f \n(AutoRejoin after 30 secs is necessary due to a bugs)", timer)  -- Обновляем текст с точностью до десятых
+        timerLabel.Text = string.format("|\nTimer: %.1f \n(AutoRejoin after 30 secs is necessary due to a bugs)", timer)
 
-        -- Если время закончилось, останавливаем таймер
-        if timer <= 0 then
-            stopTimer()
-            print("Таймер завершён.")
+    if timer <= 0 then
+        stopTimer()
 		if _G.AutoRejoin_Enabled then
             if #Players:GetPlayers() <= 1 then
                 Players.LocalPlayer:Kick("\nRejoining...")
@@ -146,13 +181,10 @@ game:GetService("RunService").Heartbeat:Connect(function()
     end
 end
 
-    -- Проверяем состояние _G.AutoRejoin_Enabled
     if _G.AutoRejoin_Enabled and not timerRunning then
         startTimer()
-        print("Таймер запущен.")
     elseif not _G.AutoRejoin_Enabled and timerRunning then
         stopTimer()
-        print("Таймер остановлен.")
     end
 end)
 
@@ -349,11 +381,11 @@ Frame:GetPropertyChangedSignal("Position"):Connect(function()
 end)
 
 Frame:GetPropertyChangedSignal("Size"):Connect(function()
-    SettingsFrame.Size = UDim2.new(0, 200, 0, Frame.Size.Y.Offset) -- Меняем размер окна настроек под основное
+    SettingsFrame.Size = UDim2.new(0, 200, 0, Frame.Size.Y.Offset)
 end)
 
 local lastRejoinAttempt = 0
-local cooldown = 10  -- Время в секундах, которое необходимо подождать между попытками перезагрузки.
+local cooldown = 10
 
 local function displayNotification(message)
     local ScreenGui = LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("NotificationGui")
@@ -427,7 +459,6 @@ local function checkPotionsAndRejoin()
     end
 end
 
-spawn(autoRejoinAfterDelay)
 spawn(checkPotionsAndRejoin)
 
 game:GetService("RunService").Stepped:Connect(function()
@@ -535,3 +566,4 @@ end
 
 task.spawn(autoActivatePrompt)
 task.spawn(autoFlyToObject)
+task.spawn(checkPlayerPosition)
