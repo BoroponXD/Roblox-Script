@@ -106,18 +106,16 @@ end
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = COREGUI
 
--- Основной фрейм
 local Frame = Instance.new("Frame", ScreenGui)
 Frame.Size = UDim2.new(0, 300, 0, 450)
-Frame.Position = UDim2.new(0.5, -150, 0.5, -225)
+Frame.Position = UDim2.new(0.5, 500, 0.5, -225)
 Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 Frame.BorderSizePixel = 0
 Frame.Active = true
 Frame.Draggable = true
 
--- Добавляем закругленные углы для Frame
 local corner = Instance.new("UICorner", Frame)
-corner.CornerRadius = UDim.new(0, 20) -- регулируем степень закругления
+corner.CornerRadius = UDim.new(0, 20)
 
 local Title = Instance.new("TextLabel", Frame)
 Title.Size = UDim2.new(0.8, 0, 0.1, 0)
@@ -155,7 +153,6 @@ No.TextColor3 = Color3.fromRGB(200, 200, 200)
 No.BackgroundTransparency = 1
 No.Font = Enum.Font.SourceSansBold
 
--- Create AutoCollect Button
 local AutoCollectButton = Instance.new("TextButton", Frame)
 AutoCollectButton.Size = UDim2.new(0.65, 0, 0.1, 0)
 AutoCollectButton.Position = UDim2.new(0.1, 0, 0.32, 0)
@@ -174,7 +171,6 @@ AutoCollectButton.MouseButton1Click:Connect(function()
     saveSettings()
 end)
 
--- Create AutoFly Button
 local AutoFlyButton = Instance.new("TextButton", Frame)
 AutoFlyButton.Size = UDim2.new(0.8, 0, 0.1, 0)
 AutoFlyButton.Position = UDim2.new(0.1, 0, 0.429, 0)
@@ -193,7 +189,6 @@ AutoFlyButton.MouseButton1Click:Connect(function()
     saveSettings()
 end)
 
--- Create Noclip Button
 local NoclipButton = Instance.new("TextButton", Frame)
 NoclipButton.Size = UDim2.new(0.8, 0, 0.1, 0)
 NoclipButton.Position = UDim2.new(0.1, 0, 0.537, 0)
@@ -212,7 +207,6 @@ NoclipButton.MouseButton1Click:Connect(function()
     saveSettings()
 end)
 
--- Create AutoRejoin Button
 local AutoRejoinButton = Instance.new("TextButton", Frame)
 AutoRejoinButton.Size = UDim2.new(0.8, 0, 0.1, 0)
 AutoRejoinButton.Position = UDim2.new(0.1, 0, 0.72, 0)
@@ -231,7 +225,6 @@ AutoRejoinButton.MouseButton1Click:Connect(function()
     saveSettings()
 end)
 
--- Create Toggle All Button
 local AllFunctionsButton = Instance.new("TextButton", Frame)
 AllFunctionsButton.Size = UDim2.new(0.8, 0, 0.1, 0)
 AllFunctionsButton.Position = UDim2.new(0.1, 0, 0.2, 0)
@@ -504,7 +497,7 @@ local function autoFlyToObject()
     -- Функция для перезапуска
     local function restartFunction()
         lastDirection = nil
-        lastTime = tick() -- Обновляем время для перезапуска
+        lastTime = tick()
     end
 
     while true do
@@ -518,14 +511,13 @@ local function autoFlyToObject()
 
                 -- Проверяем, если направление изменилось
                 if lastDirection and (currentDirection - lastDirection).Magnitude > 0.1 then
-                    lastTime = tick()  -- Сбрасываем таймер, если направление изменилось
+                    lastTime = tick()
                 end
                 
                 lastDirection = currentDirection
 
-                -- Если направление не меняется в течение 10 секунд, перезапускаем
                 if tick() - lastTime >= 10 then
-                    restartFunction()  -- Перезапускаем функцию, если нет изменений в направлении
+                    restartFunction()
                 end
             end
 
