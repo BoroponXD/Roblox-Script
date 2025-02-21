@@ -57,7 +57,7 @@ local function saveSettings()
 end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.Parent = COREGUI
 
 local Frame = Instance.new("Frame", ScreenGui)
 Frame.Size = UDim2.new(0, 250, 0, 360)
