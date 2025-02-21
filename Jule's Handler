@@ -57,7 +57,7 @@ local function saveSettings()
 end
 
 local player = game.Players.LocalPlayer
-local spawnPosition = player.Character.HumanoidRootPart.Position -- Инициализируем спавн на текущей позиции игрока
+local spawnPosition = player.Character.HumanoidRootPart.Position
 
 local function checkPlayerPosition()
     while true do
